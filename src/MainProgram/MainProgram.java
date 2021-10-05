@@ -4,7 +4,7 @@ import Graphic.WindowElement;
 
 public class MainProgram {
 
-    private static final String version = "0.0.1";
+    private static final String version = "0.0.2";
 
     /* start main window of program */
     public static void main(String[] args) {

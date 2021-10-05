@@ -26,6 +26,6 @@ public class PanelElement implements IGuiElement {
     /* default panel constructor */
     private PanelElement() {
         panel = new JPanel();
+        panel.setLayout(null);
     }
-
 }

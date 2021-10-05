@@ -9,8 +9,8 @@ public class ButtonElement implements IGuiElement {
     /* default button sizes, coordinates and action cmd */
     private int defaultButtonX0 = 0,
                 defaultButtonY0 = 0,
-                defaultButtonWidth = 100,
-                defaultButtonHeight = 40;
+                defaultButtonWidth = 80,
+                defaultButtonHeight = 25;
     private String defaultButtonActionCmd = "Button pressed";
 
     /* override inherited methods */
@@ -28,15 +28,15 @@ public class ButtonElement implements IGuiElement {
         return new ButtonElement(butName);
     }
 
-    public void ConfigButton(int x0, int y0, int width, int height, String actionCmd) {
+    public void ConfigButton(int x0_, int y0_, int width_, int height_, String actionCmd) {
 
-        defaultButtonX0 = x0;
-        defaultButtonY0 = y0;
-        defaultButtonWidth = width;
-        defaultButtonHeight = height;
+        defaultButtonX0 = x0_;
+        defaultButtonY0 = y0_;
+        defaultButtonWidth = width_;
+        defaultButtonHeight = height_;
         defaultButtonActionCmd = actionCmd;
 
-        button.setBounds(x0, y0, width, height);
+        button.setBounds(defaultButtonX0, defaultButtonY0, defaultButtonWidth, defaultButtonHeight);
         button.setActionCommand(actionCmd);
     }
 
@@ -49,5 +49,7 @@ public class ButtonElement implements IGuiElement {
 
     private ButtonElement(String butName) {
         button = new JButton(butName);
+        ConfigButton(defaultButtonX0, defaultButtonY0, defaultButtonWidth,
+                defaultButtonHeight, defaultButtonActionCmd);
     }
 }
