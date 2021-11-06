@@ -15,16 +15,12 @@ public class PanelElement implements IGuiElement {
     @Override
     public Component GetSourceElement() { return panel; }
 
-    public static PanelElement GetPanelElement() {
-        return new PanelElement();
-    }
-
     public void AddComponent(IGuiElement element) {
         panel.add(element.GetSourceElement());
     }
 
     /* default panel constructor */
-    private PanelElement() {
+    public PanelElement() {
         panel = new JPanel();
         panel.setLayout(null);
     }

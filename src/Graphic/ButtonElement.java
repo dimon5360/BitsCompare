@@ -2,6 +2,7 @@ package Graphic;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class ButtonElement implements IGuiElement {
 
@@ -11,7 +12,6 @@ public class ButtonElement implements IGuiElement {
                 defaultButtonY0 = 0,
                 defaultButtonWidth = 80,
                 defaultButtonHeight = 25;
-    private String defaultButtonActionCmd = "Button pressed";
 
     /* override inherited methods */
     @Override
@@ -21,35 +21,32 @@ public class ButtonElement implements IGuiElement {
     @Override
     public Component GetSourceElement() { return button; }
 
-    public static ButtonElement GetNewButton() {
-        return new ButtonElement();
-    }
-    public static ButtonElement GetNewButton(String butName) {
-        return new ButtonElement(butName);
+    public void SetActionName(String actionCmd) {
+        button.setActionCommand(actionCmd);
     }
 
-    public void ConfigButton(int x0_, int y0_, int width_, int height_, String actionCmd) {
+    public void ConfigButton(int x0_, int y0_, int width_, int height_) {
 
         defaultButtonX0 = x0_;
         defaultButtonY0 = y0_;
         defaultButtonWidth = width_;
         defaultButtonHeight = height_;
-        defaultButtonActionCmd = actionCmd;
-
         button.setBounds(defaultButtonX0, defaultButtonY0, defaultButtonWidth, defaultButtonHeight);
-        button.setActionCommand(actionCmd);
     }
 
-
-    private ButtonElement() {
+    public ButtonElement() {
         button = new JButton("default button");
         ConfigButton(defaultButtonX0, defaultButtonY0, defaultButtonWidth,
-                defaultButtonHeight, defaultButtonActionCmd);
+                defaultButtonHeight);
     }
 
-    private ButtonElement(String butName) {
+    public ButtonElement(String butName) {
         button = new JButton(butName);
         ConfigButton(defaultButtonX0, defaultButtonY0, defaultButtonWidth,
-                defaultButtonHeight, defaultButtonActionCmd);
+                defaultButtonHeight);
+    }
+
+    public void AddListener(ActionListener e) {
+        button.addActionListener(e);
     }
 }
