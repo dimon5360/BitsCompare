@@ -18,10 +18,23 @@ public class PanelElement implements IGuiElement {
     public void AddComponent(IGuiElement element) {
         panel.add(element.GetSourceElement());
     }
+    public void AddComponent(Component component) {
+        panel.add(component);
+    }
 
     /* default panel constructor */
     public PanelElement() {
         panel = new JPanel();
         panel.setLayout(null);
+    }
+
+    public void RemovePanelComponent(IGuiElement elem) {
+        panel.remove(elem.GetSourceElement());
+        UpdatePanel();
+    }
+
+    public void UpdatePanel() {
+        panel.revalidate();
+        panel.repaint();
     }
 }

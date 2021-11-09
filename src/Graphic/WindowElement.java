@@ -4,6 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class WindowElement implements IGuiElement {
 
@@ -35,65 +40,122 @@ public class WindowElement implements IGuiElement {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         /* config other parts of window (panel, buttons, labels, etc.) */
-        ConfigWindow();
+        ConfigStartWindow(OpenButtonActionListener);
     }
 
-    private ButtonElement openDocsButton, browseFirstDocPath, browseSecondDocPath;
-    private LabelElement firstDocPathLabel;
-    private LabelElement secondDocPathLabel;
+
+    private ButtonElement openDocsButton, browseFirstDocPathBut, browseSecondDocPathBut;
+    private LabelElement mainLabelinfo;
     private TextFieldElement firstDocPathTextField;
     private TextFieldElement secondDocPathTextField;
 
-    private void ConfigWindow() {
-        /* add panel to frame */
+    private void RemoveUnusedComponents() {
+
+        panel.RemovePanelComponent(firstDocPathTextField);
+        panel.RemovePanelComponent(secondDocPathTextField);
+        panel.RemovePanelComponent(browseFirstDocPathBut);
+        panel.RemovePanelComponent(browseSecondDocPathBut);
+        panel.RemovePanelComponent(mainLabelinfo);
+    }
+
+    private JTextArea[] OpenAndRenderDocs() {
+
+        try {
+            String firstDocPath = firstDocPathTextField.GetText();
+            String secondDocPath = secondDocPathTextField.GetText();
+
+            ClassLoader classLoader = getClass().getClassLoader();;
+            DataInputStream dataInputStream;
+            dataInputStream = new DataInputStream(new FileInputStream(firstDocPath));
+            byte [] dataFirstDoc = dataInputStream.readAllBytes();;
+            dataInputStream = new DataInputStream(new FileInputStream(secondDocPath));
+            byte [] dataSecondDoc = dataInputStream.readAllBytes();
+
+            JTextArea areaLeft = new JTextArea(1, 1);
+            areaLeft.setBounds(100, 100, 500, 800);
+            areaLeft.append(new String(dataFirstDoc, StandardCharsets.UTF_8));
+
+            JTextArea areaRight = new JTextArea(1, 1);
+            areaRight.setBounds(700, 100, 500, 800);
+            areaRight.append(new String(dataSecondDoc, StandardCharsets.UTF_8));
+
+            RemoveUnusedComponents();
+            return new JTextArea [] {areaLeft, areaRight};
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    private enum docs { firstDoc, secondDoc };
+
+    private void ConfigMainWorkWindow() {
+
+        JTextArea[] areas = OpenAndRenderDocs();
+        if(areas[docs.firstDoc.ordinal()] != null && areas[docs.secondDoc.ordinal()] != null) {
+            frame.resize(1400, 1200);
+
+            for(JTextArea area : areas) {
+                panel.AddComponent(area);
+            }
+            panel.UpdatePanel();
+        }
+    }
+
+    private ActionListener OpenButtonActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            ConfigMainWorkWindow();
+        }
+    };
+
+    private void ConfigStartWindow(ActionListener userButtonAction) {
+
         panel = new PanelElement();
         frame.add(panel.GetSourceElement());
 
-        /* add button to open docs */
-        openDocsButton = ConfigButton(frameWidth / 2, 3 * frameHeight / 4, "Open");
-        openDocsButton.SetActionName("Open docs");
-        openDocsButton.AddListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SpecifyPath(null, e.getActionCommand());
-            }
-        });
-        panel.AddComponent(openDocsButton);
-
-        /* add text fields to specify paths to docs */
-        firstDocPathTextField = ConfigTextField(frameWidth / 2 - 140, 3 * frameHeight / 4 - 100);
+        firstDocPathTextField = ConfigTextField(1 * frameWidth / 6, 3 * frameHeight / 4 - 100);
         panel.AddComponent(firstDocPathTextField);
-        secondDocPathTextField = ConfigTextField(frameWidth / 2 - 140, 3 * frameHeight / 4 - 50);
+        secondDocPathTextField = ConfigTextField(1 * frameWidth / 6, 3 * frameHeight / 4 - 50);
         panel.AddComponent(secondDocPathTextField);
 
-        /* add labels to specify what path is where */
-        firstDocPathLabel = ConfigLabel(frameWidth / 2 - 250, 3 * frameHeight / 4 - 100, "Path 1");
-        panel.AddComponent(firstDocPathLabel);
-        secondDocPathLabel = ConfigLabel(frameWidth / 2 - 250, 3 * frameHeight / 4 - 50, "Path 2");
-        panel.AddComponent(secondDocPathLabel);
+        mainLabelinfo = ConfigLabel(3 * frameWidth / 7, 3 * frameHeight / 5 - 100,
+                200, 20, "Specify repository paths");
+        panel.AddComponent(mainLabelinfo);
 
-        /* add button to open docs */
-        browseFirstDocPath = ConfigButton(frameWidth / 2 + 250, 3 * frameHeight / 4 - 100,
+        browseFirstDocPathBut = ConfigButton(frameWidth / 2 + 250, 3 * frameHeight / 4 - 100,
                 "Browse");
-        browseFirstDocPath.SetActionName("Specify path to first doc");
-        browseFirstDocPath.AddListener(new ActionListener() {
+        browseFirstDocPathBut.AddListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SpecifyPath(firstDocPathTextField, e.getActionCommand());
+                JFileChooser fc = new JFileChooser();
+                if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    String filePath = fc.getSelectedFile().getAbsolutePath();
+                    SpecifyPath(firstDocPathTextField, filePath);
+                }
             }
         });
-        panel.AddComponent(browseFirstDocPath);
+        panel.AddComponent(browseFirstDocPathBut);
 
-        browseSecondDocPath = ConfigButton(frameWidth / 2 + 250, 3 * frameHeight / 4 - 50,
+        browseSecondDocPathBut = ConfigButton(frameWidth / 2 + 250, 3 * frameHeight / 4 - 50,
                 "Browse");
-        browseSecondDocPath.SetActionName("Specify path to second doc");
-        browseSecondDocPath.AddListener(new ActionListener() {
+        browseSecondDocPathBut.AddListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SpecifyPath(secondDocPathTextField, e.getActionCommand());
+                JFileChooser fc = new JFileChooser();
+                if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    String filePath = fc.getSelectedFile().getAbsolutePath();
+                    SpecifyPath(secondDocPathTextField, filePath);
+                }
             }
         });
-        panel.AddComponent(browseSecondDocPath);
+        panel.AddComponent(browseSecondDocPathBut);
+
+        openDocsButton = ConfigButton(3 * frameWidth / 7, 3 * frameHeight / 4, "Open");
+        openDocsButton.SetActionName("Open docs");
+        openDocsButton.AddListener(userButtonAction);
+        panel.AddComponent(openDocsButton);
     }
 
     private final int defaultButtonWidth = 80, defaultButtonHeight = 25;
@@ -102,11 +164,21 @@ public class WindowElement implements IGuiElement {
         button.ConfigButton(x0, y0, defaultButtonWidth, defaultButtonHeight);
         return button;
     }
+    private ButtonElement ConfigButton(int x0, int y0, int x1, int y1, String buttonText) {
+        ButtonElement button = new ButtonElement(buttonText);
+        button.ConfigButton(x0, y0, x1, y1);
+        return button;
+    }
 
-    private final int defaultTextFieldWidth = 360, defaultTextFieldHeight = 25;
+    private final int defaultTextFieldWidth = 400, defaultTextFieldHeight = 25;
     private TextFieldElement ConfigTextField(int x0, int y0) {
         TextFieldElement textField = new TextFieldElement();
         textField.ConfigTextField(x0, y0, defaultTextFieldWidth, defaultTextFieldHeight);
+        return textField;
+    }
+    private TextFieldElement ConfigTextField(int x0, int y0, int x1, int y1) {
+        TextFieldElement textField = new TextFieldElement();
+        textField.ConfigTextField(x0, y0, x1, y1);
         return textField;
     }
 
@@ -116,11 +188,16 @@ public class WindowElement implements IGuiElement {
         label.ConfigLabel(x0, y0, defaultLabeldWidth, defaultLabelHeight);
         return label;
     }
+    private LabelElement ConfigLabel(int x0, int y0, int x1, int y1, String labelText) {
+        LabelElement label = new LabelElement(labelText);
+        label.ConfigLabel(x0, y0, x1, y1);
+        return label;
+    }
 
-    private void SpecifyPath(TextFieldElement field, String name) {
+    private void SpecifyPath(TextFieldElement field, String path) {
         if(field != null) {
-            field.RenderText(name);
+            field.RenderText(path);
         }
-        System.out.println(name);
+        System.out.println(path);
     }
 }

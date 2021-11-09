@@ -13,11 +13,10 @@ public class ButtonElement implements IGuiElement {
                 defaultButtonWidth = 80,
                 defaultButtonHeight = 25;
 
-    /* override inherited methods */
     @Override
     public void ShowElement() {
         button.setVisible(true);
-    } // by default button is visible
+    }
     @Override
     public Component GetSourceElement() { return button; }
 
@@ -34,17 +33,13 @@ public class ButtonElement implements IGuiElement {
         button.setBounds(defaultButtonX0, defaultButtonY0, defaultButtonWidth, defaultButtonHeight);
     }
 
-    public ButtonElement() {
-        button = new JButton("default button");
-        ConfigButton(defaultButtonX0, defaultButtonY0, defaultButtonWidth,
-                defaultButtonHeight);
-    }
-
     public ButtonElement(String butName) {
         button = new JButton(butName);
         ConfigButton(defaultButtonX0, defaultButtonY0, defaultButtonWidth,
                 defaultButtonHeight);
     }
+
+
 
     public void AddListener(ActionListener e) {
         button.addActionListener(e);
